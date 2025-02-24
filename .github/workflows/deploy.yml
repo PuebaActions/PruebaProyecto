@@ -27,7 +27,7 @@ jobs:
 
       #Revertir el push al main
       - name: Revertir el push al main
-      run: echo test!
+        run: echo test!
 
       # Runs a single command using the runners shell
       #- name: Run a one-line script
