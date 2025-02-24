@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  revert-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Necesitamos el commit anterior para revertir
+
+      - name: Detect Unauthorized Push
+        run: |
+          AUTHOR=$(git log -1 --pretty=format:'%an')
+          if [ "$AUTHOR" != "GitHub Actions" ]; then
+            echo "❌ Direct push detected from $AUTHOR. Reverting..."
+            git reset --hard HEAD~1
+            git push --force
+          else
+            echo "✅ Commit was made by GitHub Actions, skipping..."
+          fi
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run a one-line script
+        run: echo Hello, world!
+
+      - name: Run a multi-line script
+        run: |
+          echo Add other actions to build,
+          echo test, and deploy your project.
