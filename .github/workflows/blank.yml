@@ -16,25 +16,19 @@ jobs:
         with:
           fetch-depth: 2  # Necesitamos el commit anterior para revertir
 
+      - name: Configure Git Credentials
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.ORG_PAT_TOKEN }}@github.com/${{ github.repository }}.git
+
       - name: Detect Unauthorized Push
         run: |
           AUTHOR=$(git log -1 --pretty=format:'%an')
-          if [ "$AUTHOR" != "GitHub Actions" ]; then
+          if [ "$AUTHOR" != "github-actions" ]; then
             echo "❌ Direct push detected from $AUTHOR. Reverting..."
             git reset --hard HEAD~1
             git push --force origin main
           else
             echo "✅ Commit was made by GitHub Actions, skipping..."
           fi
-        env:
-          GIT_AUTHOR_NAME: github-actions
-          GIT_AUTHOR_EMAIL: actions@github.com
-          GIT_COMMITTER_NAME: github-actions
-          GIT_COMMITTER_EMAIL: actions@github.com
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-          
-      - name: Configure Git Credentials
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-          git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git
