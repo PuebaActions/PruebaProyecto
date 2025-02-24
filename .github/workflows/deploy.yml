@@ -1,15 +1,15 @@
-name: Check PR Approval by MGVega
+name: Validar aprobación en PR
 
 on:
   pull_request:
     branches: [ "main" ]
-    #types: [opened, synchronize, reopened, review_requested, review]
+    types: [opened, synchronize, reopened, review_requested, review]
 
 jobs:
-  check-approval:
+  validate-approval:
     runs-on: ubuntu-latest
     steps:
-      - name: Verificar aprobación de MGVega
+      - name: Revisar aprobación del PR
         uses: actions/github-script@v6
         with:
           script: |
@@ -17,11 +17,20 @@ jobs:
             const { data: reviews } = await github.rest.pulls.listReviews({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: prNumber,
+              pull_number: prNumber
             });
-            const approvedByMGVega = reviews.some(review =>
-              review.user.login === 'MGVega' && review.state === 'APPROVED'
-            );
-            if (!approvedByMGVega) {
-              core.setFailed('Este PR necesita la aprobación de MGVega.');
+            // Guardamos la última revisión de cada usuario
+            let effectiveReviews = {};
+            reviews.forEach(review => {
+              effectiveReviews[review.user.login] = review.state;
+            });
+            // Si hay aprobación de usuario distinto a MGVega, fallamos
+            for (const [user, state] of Object.entries(effectiveReviews)) {
+              if (user !== 'MGVega' && state === 'APPROVED') {
+                core.setFailed(`Aprobación no permitida: ${user} aprobó el PR.`);
+              }
+            }
+            // Además, validamos que MGVega haya aprobado
+            if (!effectiveReviews['MGVega'] || effectiveReviews['MGVega'] !== 'APPROVED') {
+              core.setFailed("El PR necesita la aprobación de MGVega.");
             }
