@@ -34,21 +34,4 @@ jobs:
             if (!effectiveReviews['MGVega'] || effectiveReviews['MGVega'] !== 'APPROVED') {
               core.setFailed("El PR necesita la aprobación de MGVega.");
             }
-  check_approval:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
 
-    - name: Get PR reviews
-      uses: peter-evans/review-check@v1
-      id: review
-      with:
-        required_approvals: 1
-        approvers: "MGVega"
-    
-    - name: Fail if MGVega has not approved
-      if: steps.review.outputs.approved != 'true'
-      run: |
-        echo "PR has not been approved by MGVega. Merge is not allowed."
-        exit 1
