@@ -3,7 +3,7 @@ name: Validar aprobación en PR
 on:
   pull_request:
     branches: [ "main" ]
-    types: [opened, synchronize, reopened, review_requested, review]
+    #types: [opened, synchronize, reopened, review_requested, review]
 
 jobs:
   validate-approval:
