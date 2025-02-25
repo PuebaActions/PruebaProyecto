@@ -34,3 +34,4 @@ jobs:
             if (!effectiveReviews['MGVega'] || effectiveReviews['MGVega'] !== 'APPROVED') {
               core.setFailed("El PR necesita la aprobación de MGVega.");
             }
+
